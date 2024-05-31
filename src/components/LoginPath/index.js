@@ -4,7 +4,7 @@ import {Redirect} from 'react-router-dom'
 
 import './index.css'
 
-const Login = props => {
+const LoginPath = props => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
@@ -77,4 +77,4 @@ const Login = props => {
   )
 }
 
-export default Login
+export default LoginPath

@@ -1,83 +1,158 @@
-import {useState} from 'react'
-import {Switch, Route, Redirect} from 'react-router-dom'
+import {Component} from 'react'
 
-import Home from './components/Home'
-import Login from './components/Login'
-import Cart from './components/Cart'
-import NotFound from './components/NotFound'
-import ProtectedRoute from './components/ProtectedRoute'
+import {Switch, Route} from 'react-router-dom'
+
+import FoodList from './components/FoodList'
+
+import LoginPath from './components/LoginPath'
+
 import CartContext from './context/CartContext'
 
-import './App.css'
+import ProtectedRoute from './components/ProtectedRoute'
+import Cart from './components/Cart'
+import Header from './components/Header'
 
-const App = () => {
-  const [cartList, setCartList] = useState([])
-  const [restaurantName, setRestaurantName] = useState('')
+class App extends Component {
+  state = {cartItems: []}
 
-  const addCartItem = dish => {
-    const isAlreadyExists = cartList.find(item => item.dishId === dish.dishId)
+  addCartItem = dish => {
+    const {cartItems} = this.state
 
-    if (!isAlreadyExists) {
-      setCartList(prev => [...prev, dish])
+    const product = cartItems.find(item => item.dishId === dish.dishId)
+    console.log(product)
+    if (!product) {
+      this.setState(prevState => ({
+        cartItems: [...prevState.cartItems, dish],
+      }))
     } else {
-      setCartList(prev =>
-        prev.map(item =>
-          item.dishId === dish.dishId
-            ? {...item, quantity: item.quantity + dish.quantity}
-            : item,
-        ),
-      )
+      this.IncreaseCartItems(dish)
     }
   }
 
-  const removeCartItem = dishId => {
-    setCartList(prevState => prevState.filter(item => item.dishId !== dishId))
-  }
-
-  const removeAllCartItems = () => setCartList([])
-
-  const incrementCartItemQuantity = dishId => {
-    setCartList(prevState =>
-      prevState.map(item =>
-        item.dishId === dishId ? {...item, quantity: item.quantity + 1} : item,
+  removeCartItem = dish => {
+    this.setState(prevState => ({
+      cartItems: prevState.cartItems.filter(
+        item => item.dishId !== dish.dishId,
       ),
-    )
+    }))
   }
 
-  const decrementCartItemQuantity = dishId => {
-    setCartList(prevState =>
-      prevState
-        .map(item =>
-          item.dishId === dishId
-            ? {...item, quantity: item.quantity - 1}
-            : item,
-        )
-        .filter(item => item.quantity > 0),
-    )
+  IncreaseCartItems = dish => {
+    const {cartItems} = this.state
+
+    const product = cartItems.find(item => item.dishId === dish.dishId)
+    console.log(product)
+    if (!product) {
+      this.setState(prevState => ({
+        cartItems: [...prevState.cartItems, dish],
+      }))
+    } else {
+      this.setState(prevState => ({
+        cartItems: prevState.cartItems.map(item => {
+          if (item.dishId === product.dishId) {
+            return {...item, count: item.count + 1}
+          }
+          return item
+        }),
+      }))
+    }
   }
 
-  return (
-    <CartContext.Provider
-      value={{
-        cartList,
-        addCartItem,
-        removeCartItem,
-        incrementCartItemQuantity,
-        decrementCartItemQuantity,
-        removeAllCartItems,
-        restaurantName,
-        setRestaurantName,
-      }}
-    >
-      <Switch>
-        <Route exact path="/login" component={Login} />
-        <ProtectedRoute exact path="/" component={Home} />
-        <ProtectedRoute exact path="/cart" component={Cart} />
-        <Route exact path="/not-found" component={NotFound} />
-        <Redirect to="/not-found" />
-      </Switch>
-    </CartContext.Provider>
-  )
+  DecreaseCartItems = dish => {
+    const {cartItems} = this.state
+    const product = cartItems.find(item => item.dishId === dish.dishId)
+    if (product.count >= 1) {
+      this.setState(prevState => ({
+        cartItems: prevState.cartItems.map(item => {
+          if (item.dishId === product.dishId) {
+            return {...item, count: item.count - 1}
+          } else {
+            return item
+          }
+        }),
+      }))
+    } else {
+      this.setState(prevState => ({
+        cartItems: prevState.cartItems.filter(
+          item => item.dishId !== product.dishId,
+        ),
+      }))
+    }
+  }
+
+  RemoveAll = () => {
+    this.setState({cartItems: []})
+  }
+
+  render() {
+    const {cartItems} = this.state
+
+    return (
+      <CartContext.Provider
+        value={{
+          cartItems,
+          IncreaseCartItems: this.IncreaseCartItems,
+          DecreaseCartItems: this.DecreaseCartItems,
+          RemoveAll: this.RemoveAll,
+          addCartItem: this.addCartItem,
+          removeCartItem: this.removeCartItem,
+        }}
+      >
+        <>
+          <Header />
+          <Switch>
+            <Route exact path="/login" component={LoginPath} />
+            <ProtectedRoute exact path="/" component={FoodList} />
+            <ProtectedRoute exact path="/cart" component={Cart} />
+          </Switch>
+        </>
+      </CartContext.Provider>
+    )
+  }
 }
 
 export default App
+
+// import { Component } from "react";
+
+// import Header from "./components/Header";
+
+// import FoodList from "./components/FoodList";
+
+// import CartContext from "./context/CartContext.js";
+
+// class App extends Component {
+//   state = { cart_items: 0 };
+//   Increase_cart_items = () => {
+//     this.setState((prevState) => ({
+//       cart_items: prevState.cart_items + 1,
+//     }));
+//   };
+//   Decrease_cart_items = () => {
+//     const { cart_items } = this.state;
+//     this.setState((prevState) => {
+//       if (cart_items !== 0) {
+//         return { cart_items: prevState.cart_items - 1 };
+//       }
+//     });
+//   };
+//   render() {
+//     const { cart_items } = this.state;
+//     return (
+//       <CartContext.Provider
+//         value={{
+//           cart_items,
+//           Increase_cart_items: this.Increase_cart_items,
+//           Decrease_cart_items: this.Decrease_cart_items,
+//         }}
+//       >
+//         <>
+//           <Header />
+//           <FoodList />
+//         </>
+//       </CartContext.Provider>
+//     );
+//   }
+// }
+
+// export default App;

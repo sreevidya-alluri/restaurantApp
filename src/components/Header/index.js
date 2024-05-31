@@ -1,54 +1,66 @@
-import {useContext} from 'react'
-import {Link, withRouter} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import {AiOutlineShoppingCart} from 'react-icons/ai'
-import Cookies from 'js-cookie'
-
-import CartContext from '../../context/CartContext'
 
 import './index.css'
+import CartContext from '../../context/CartContext'
 
-const Header = props => {
-  const {cartList, restaurantName} = useContext(CartContext)
+const Header = () => (
+  <CartContext.Consumer>
+    {value => {
+      const {cartItems} = value
+      return (
+        <header>
+          <div className="nav-container">
+            <nav className="nav-bar">
+              <Link to="/" style={{textDecoration: 'none'}}>
+                <h1 className="restaurant-name">UNI Resto Cafe</h1>
+              </Link>
 
-  const onLogout = () => {
-    const {history} = props
-    Cookies.remove('jwt_token')
-    history.replace('/login')
-  }
+              <div className="my-order-container">
+                <p>My Orders</p>
+                <Link to="/cart" style={{textDecoration: 'none'}}>
+                  <AiOutlineShoppingCart className="cart-icon" />
+                </Link>
 
-  const renderCartIcon = () => (
-    <div className="cart-icon-link">
-      <Link to="/cart">
-        <button type="button" className="cart-icon-button" data-testid="cart">
-          <AiOutlineShoppingCart className="cart-icon" />
-        </button>
-      </Link>
-      <div className="cart-count-badge d-flex justify-content-center align-items-center">
-        <p className="m-0 cart-count">{cartList.length}</p>
-      </div>
-    </div>
-  )
+                <p className="cart-number">{cartItems.length}</p>
+              </div>
+            </nav>
+          </div>
+        </header>
+      )
+    }}
+  </CartContext.Consumer>
+)
 
-  return (
-    <header className="p-4 d-flex flex-row align-items-center nav-header">
-      <Link to="/">
-        <h1 className="m-0 logo-heading">{restaurantName}</h1>
-      </Link>
-      <div className="d-flex flex-row align-items-center ms-auto">
-        <p className="mt-0 mb-0 me-2 d-none d-sm-block my-orders-text">
-          My Orders
-        </p>
-        <button
-          type="button"
-          className="btn btn-outline-danger ms-2 me-2 btn-sm"
-          onClick={onLogout}
-        >
-          Logout
-        </button>
-        {renderCartIcon()}
-      </div>
-    </header>
-  )
-}
+export default Header
 
-export default withRouter(Header)
+// import { AiOutlineShoppingCart } from "react-icons/ai";
+
+// import "./index.css";
+// import CartContext from "../../context/CartContext";
+
+// const Header = () => {
+//   return (
+//     <CartContext.Consumer>
+//       {(value) => {
+//         const { cart_items } = value;
+//         return (
+//           <header>
+//             <div className="nav-container">
+//               <nav className="nav-bar">
+//                 <h1 className="restaurant-name">UNI Resto Cafe</h1>
+//                 <div className="my-order-container">
+//                   <p>My orders</p>
+//                   <AiOutlineShoppingCart className="cart-icon" />
+//                   <span className="cart-number">{cart_items}</span>
+//                 </div>
+//               </nav>
+//             </div>
+//           </header>
+//         );
+//       }}
+//     </CartContext.Consumer>
+//   );
+// };
+
+// export default Header;

@@ -1,12 +1,12 @@
 import {createContext} from 'react'
 
 const CartContext = createContext({
-  cartList: [],
+  cartItems: [],
+  IncreaseCartItems: () => {},
+  DecreaseCartItems: () => {},
+  RemoveAll: () => {},
   addCartItem: () => {},
   removeCartItem: () => {},
-  removeAllCartItems: () => {},
-  incrementCartItemQuantity: () => {},
-  decrementCartItemQuantity: () => {},
 })
 
 export default CartContext

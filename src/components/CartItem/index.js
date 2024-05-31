@@ -1,58 +1,95 @@
-import {useContext} from 'react'
-import {FaRegTrashAlt} from 'react-icons/fa'
-
 import CartContext from '../../context/CartContext'
 
 import './index.css'
 
-const CartItem = ({cartItemDetails}) => {
+const CartItem = props => {
+  const {dishes} = props
+  // console.log(dishes);
   const {
+    // eslint-disable-next-line
     dishId,
-    dishName,
-    dishImage,
-    quantity,
+    addonCat,
+    dishCalories,
     dishCurrency,
+    dishDescription,
+    dishName,
     dishPrice,
-  } = cartItemDetails
+    dishImage,
+    dishAvailability,
+    count,
+  } = dishes
 
-  const {
-    incrementCartItemQuantity,
-    decrementCartItemQuantity,
-    removeCartItem,
-  } = useContext(CartContext)
+  const availability = () => {
+    if (dishAvailability) {
+      if (addonCat.length !== 0) {
+        return 'Customizations available'
+      }
+    }
+    return 'Not Available'
+  }
 
-  const onIncreaseQty = () => incrementCartItemQuantity(dishId)
-
-  const onDecreaseQty = () => decrementCartItemQuantity(dishId)
-
-  const onRemoveCartItem = () => removeCartItem(dishId)
+  const customization =
+    addonCat.length !== 0 && dishAvailability ? 'color-blue' : 'color-red'
 
   return (
-    <li className="cart-item-container">
-      <img className="cart-item-image" src={dishImage} alt={dishName} />
-      <div className="cart-item-details">
-        <p className="cart-item-name mb-1">{dishName}</p>
-        <p className="dish-currency-price mt-0 mb-2">
-          {dishCurrency} {(quantity * dishPrice).toFixed(2)}
-        </p>
-        <div className="control-btn-group">
-          <button type="button" className="control-btn" onClick={onDecreaseQty}>
-            -
-          </button>
-          <p className="cart-item-quantity">{quantity}</p>
-          <button type="button" className="control-btn" onClick={onIncreaseQty}>
-            +
-          </button>
-        </div>
-      </div>
-      <button
-        type="button"
-        className="remove-btn text-danger align-self-center"
-        onClick={onRemoveCartItem}
-      >
-        <FaRegTrashAlt />
-      </button>
-    </li>
+    <CartContext.Consumer>
+      {value => {
+        const {IncreaseCartItems, DecreaseCartItems, removeCartItem} = value
+
+        const onClickIncrement = () => {
+          IncreaseCartItems(dishes)
+        }
+        const onClickDecrement = () => {
+          DecreaseCartItems(dishes)
+        }
+        return (
+          <li className="grid-layout">
+            <div>
+              <h1 className="dish-name">{dishName}</h1>
+              <p className="font-weight-2">
+                {dishCurrency} {dishPrice}
+              </p>
+              <p className="dish-description">{dishDescription}</p>
+              {dishAvailability && (
+                <div className="button-style">
+                  <button
+                    type="button"
+                    className="button-change"
+                    onClick={onClickDecrement}
+                  >
+                    -
+                  </button>
+                  <p>{count}</p>
+                  <button
+                    type="button"
+                    className="button-change"
+                    onClick={onClickIncrement}
+                  >
+                    +
+                  </button>
+                </div>
+              )}
+              <p className={`${customization} text-display`}>
+                {availability()}
+              </p>
+              <button
+                type="button"
+                onClick={() => removeCartItem(dishes)}
+                className="RemoveBtn"
+              >
+                Remove
+              </button>
+            </div>
+
+            <p className="calories">{dishCalories} calories</p>
+
+            <div>
+              <img className="food-Image" src={dishImage} alt={dishName} />
+            </div>
+          </li>
+        )
+      }}
+    </CartContext.Consumer>
   )
 }
 
